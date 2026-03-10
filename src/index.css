@@ -59,6 +59,7 @@ h2 {
   padding: 16px 20px;
   margin-bottom: 14px;
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 /* Inputs */
@@ -73,6 +74,7 @@ textarea {
   border-radius: var(--radius-sketchy-sm);
   padding: 8px 12px;
   width: 100%;
+  max-width: 100%;
   outline: none;
   transition: border-color 0.15s;
 }
