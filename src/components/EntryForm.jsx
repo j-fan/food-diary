@@ -19,16 +19,26 @@ export default function EntryForm({
   symptomsSha,
   people,
   peopleSha,
+  editEntry,
   onSaved,
+  onCancel,
 }) {
-  const [datetime, setDatetime] = useState(toLocalDatetime(new Date()));
-  const [person, setPerson] = useState("");
-  const [mealType, setMealType] = useState("lunch");
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
-  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
-  const [notes, setNotes] = useState("");
+  const [datetime, setDatetime] = useState(
+    editEntry ? editEntry.datetime : toLocalDatetime(new Date())
+  );
+  const [person, setPerson] = useState(editEntry ? editEntry.person : "");
+  const [mealType, setMealType] = useState(editEntry ? editEntry.mealType : "lunch");
+  const [selectedIngredients, setSelectedIngredients] = useState(
+    editEntry ? editEntry.ingredients : []
+  );
+  const [selectedSymptoms, setSelectedSymptoms] = useState(
+    editEntry ? editEntry.symptoms : []
+  );
+  const [notes, setNotes] = useState(editEntry ? editEntry.notes : "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  const isEditing = !!editEntry;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -43,7 +53,7 @@ export default function EntryForm({
     const personName = person.trim() || people[0] || "me";
 
     const entry = {
-      id: Date.now().toString(36),
+      id: isEditing ? editEntry.id : Date.now().toString(36),
       datetime,
       person: personName,
       mealType,
@@ -53,7 +63,9 @@ export default function EntryForm({
     };
 
     try {
-      const newEntries = [entry, ...entries];
+      const newEntries = isEditing
+        ? entries.map((e) => (e.id === editEntry.id ? entry : e))
+        : [entry, ...entries];
       const result = await saveEntries(newEntries, entriesSha);
 
       const updates = {
@@ -162,9 +174,16 @@ export default function EntryForm({
 
         {error && <div className="status error mb-8">{error}</div>}
 
-        <button className="btn btn-primary" type="submit" disabled={saving}>
-          {saving ? "Saving..." : "Save Entry"}
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn btn-primary" type="submit" disabled={saving}>
+            {saving ? "Saving..." : isEditing ? "Update Entry" : "Save Entry"}
+          </button>
+          {isEditing && (
+            <button className="btn" type="button" onClick={onCancel}>
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
     </form>
   );

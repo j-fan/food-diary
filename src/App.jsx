@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { testToken, loadEntries, loadIngredients, loadSymptoms, loadPeople } from "./services/github";
+import { testToken, loadEntries, loadIngredients, loadSymptoms, loadPeople, saveEntries } from "./services/github";
 import LoginScreen from "./components/LoginScreen";
 import EntryForm from "./components/EntryForm";
 import EntryList from "./components/EntryList";
 
 export default function App() {
   const [authed, setAuthed] = useState(!!localStorage.getItem("github_pat"));
-  const [view, setView] = useState("list"); // "list" | "add"
+  const [view, setView] = useState("list"); // "list" | "add" | "edit"
+  const [editEntry, setEditEntry] = useState(null);
   const [entries, setEntries] = useState([]);
   const [entriesSha, setEntriesSha] = useState(null);
   const [ingredients, setIngredients] = useState([]);
@@ -64,9 +65,46 @@ export default function App() {
     setEntries([]);
   }
 
+  function handleFormSaved(updates) {
+    setEntries(updates.entries);
+    setEntriesSha(updates.entriesSha);
+    if (updates.ingredients) {
+      setIngredients(updates.ingredients);
+      setIngredientsSha(updates.ingredientsSha);
+    }
+    if (updates.symptoms) {
+      setSymptoms(updates.symptoms);
+      setSymptomsSha(updates.symptomsSha);
+    }
+    if (updates.people) {
+      setPeople(updates.people);
+      setPeopleSha(updates.peopleSha);
+    }
+    setEditEntry(null);
+    setView("list");
+  }
+
+  async function handleDelete(id) {
+    const newEntries = entries.filter((e) => e.id !== id);
+    try {
+      const result = await saveEntries(newEntries, entriesSha);
+      setEntries(newEntries);
+      setEntriesSha(result.content.sha);
+    } catch (err) {
+      setError("Delete failed: " + err.message);
+    }
+  }
+
+  function handleEdit(entry) {
+    setEditEntry(entry);
+    setView("edit");
+  }
+
   if (!authed) {
     return <LoginScreen onLogin={handleLogin} />;
   }
+
+  const showForm = view === "add" || view === "edit";
 
   return (
     <div className="container">
@@ -75,13 +113,13 @@ export default function App() {
       <div className="tabs">
         <div
           className={`tab ${view === "list" ? "active" : ""}`}
-          onClick={() => setView("list")}
+          onClick={() => { setView("list"); setEditEntry(null); }}
         >
           Entries
         </div>
         <div
-          className={`tab ${view === "add" ? "active" : ""}`}
-          onClick={() => setView("add")}
+          className={`tab ${showForm ? "active" : ""}`}
+          onClick={() => { setView("add"); setEditEntry(null); }}
         >
           + Add
         </div>
@@ -90,8 +128,9 @@ export default function App() {
       {error && <div className="status error">{error}</div>}
       {loading && <div className="status">Loading...</div>}
 
-      {!loading && view === "add" && (
+      {!loading && showForm && (
         <EntryForm
+          key={editEntry ? editEntry.id : "new"}
           entries={entries}
           entriesSha={entriesSha}
           ingredients={ingredients}
@@ -100,29 +139,15 @@ export default function App() {
           symptomsSha={symptomsSha}
           people={people}
           peopleSha={peopleSha}
-          onSaved={(updates) => {
-            setEntries(updates.entries);
-            setEntriesSha(updates.entriesSha);
-            if (updates.ingredients) {
-              setIngredients(updates.ingredients);
-              setIngredientsSha(updates.ingredientsSha);
-            }
-            if (updates.symptoms) {
-              setSymptoms(updates.symptoms);
-              setSymptomsSha(updates.symptomsSha);
-            }
-            if (updates.people) {
-              setPeople(updates.people);
-              setPeopleSha(updates.peopleSha);
-            }
-            setView("list");
-          }}
+          editEntry={editEntry}
+          onSaved={handleFormSaved}
+          onCancel={() => { setEditEntry(null); setView("list"); }}
         />
       )}
 
       {!loading && view === "list" && (
         <>
-          <EntryList entries={entries} />
+          <EntryList entries={entries} onEdit={handleEdit} onDelete={handleDelete} />
           <div className="text-center mt-16">
             <button className="btn btn-small" onClick={handleLogout}>
               Logout

@@ -27,8 +27,9 @@ function groupByDate(entries) {
   return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a));
 }
 
-export default function EntryList({ entries }) {
+export default function EntryList({ entries, onEdit, onDelete }) {
   const [filter, setFilter] = useState("");
+  const [deleting, setDeleting] = useState(null);
 
   const filtered = filter
     ? entries.filter((e) => e.person.toLowerCase() === filter.toLowerCase())
@@ -72,7 +73,7 @@ export default function EntryList({ entries }) {
           <h2>{formatDate(dayEntries[0].datetime)}</h2>
           {dayEntries.map((entry) => (
             <div key={entry.id} className="entry-row">
-              <div>
+              <div style={{ flex: 1 }} onClick={() => onEdit(entry)}>
                 <strong>
                   {entry.mealType}
                   {entry.person !== "me" && ` (${entry.person})`}
@@ -91,7 +92,37 @@ export default function EntryList({ entries }) {
                   </div>
                 )}
               </div>
-              <div className="entry-meta">{formatTime(entry.datetime)}</div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div className="entry-meta">{formatTime(entry.datetime)}</div>
+                {deleting === entry.id ? (
+                  <div className="mt-8">
+                    <button
+                      className="btn btn-small btn-danger"
+                      onClick={() => { onDelete(entry.id); setDeleting(null); }}
+                    >
+                      confirm
+                    </button>
+                    <button
+                      className="btn btn-small"
+                      style={{ marginLeft: 4 }}
+                      onClick={() => setDeleting(null)}
+                    >
+                      cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="entry-actions mt-8">
+                    <button className="btn btn-small" onClick={() => onEdit(entry)}>edit</button>
+                    <button
+                      className="btn btn-small btn-danger"
+                      style={{ marginLeft: 4 }}
+                      onClick={() => setDeleting(entry.id)}
+                    >
+                      delete
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
