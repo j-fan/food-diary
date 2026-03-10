@@ -74,9 +74,13 @@ textarea {
   border-radius: var(--radius-sketchy-sm);
   padding: 8px 12px;
   width: 100%;
-  max-width: 100%;
   outline: none;
   transition: border-color 0.15s;
+}
+
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input:focus,
