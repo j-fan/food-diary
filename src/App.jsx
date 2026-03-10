@@ -3,6 +3,7 @@ import { testToken, loadEntries, loadIngredients, loadSymptoms, loadPeople, save
 import LoginScreen from "./components/LoginScreen";
 import EntryForm from "./components/EntryForm";
 import EntryList from "./components/EntryList";
+import Analytics from "./components/Analytics";
 
 export default function App() {
   const [authed, setAuthed] = useState(!!localStorage.getItem("github_pat"));
@@ -118,6 +119,12 @@ export default function App() {
           Entries
         </div>
         <div
+          className={`tab ${view === "stats" ? "active" : ""}`}
+          onClick={() => { setView("stats"); setEditEntry(null); }}
+        >
+          Stats
+        </div>
+        <div
           className={`tab ${showForm ? "active" : ""}`}
           onClick={() => { setView("add"); setEditEntry(null); }}
         >
@@ -154,6 +161,10 @@ export default function App() {
             </button>
           </div>
         </>
+      )}
+
+      {!loading && view === "stats" && (
+        <Analytics entries={entries} />
       )}
     </div>
   );
