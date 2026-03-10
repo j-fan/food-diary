@@ -25,7 +25,7 @@ export default function LoginScreen({ onLogin }) {
       <div className="card">
         <h2>Login</h2>
         <p style={{ fontSize: "0.95rem", color: "var(--text-light)", marginBottom: 12 }}>
-          Enter your GitHub fine-grained PAT with Contents read/write access to the food-diary repo.
+          Enter your GitHub fine-grained PAT with Contents read/write access to the food-diary-data repo.
         </p>
         <form onSubmit={handleSubmit}>
           <div className="form-group">

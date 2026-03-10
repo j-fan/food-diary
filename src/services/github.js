@@ -1,5 +1,5 @@
 const REPO_OWNER = "j-fan";
-const REPO_NAME = "food-diary";
+const DATA_REPO = "food-diary-data";
 const API = "https://api.github.com";
 
 function getToken() {
@@ -16,7 +16,7 @@ function headers() {
 
 async function getFile(path) {
   const res = await fetch(
-    `${API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`,
+    `${API}/repos/${REPO_OWNER}/${DATA_REPO}/contents/${path}`,
     { headers: headers() }
   );
   if (!res.ok) throw new Error(`Failed to fetch ${path}: ${res.status}`);
@@ -27,7 +27,7 @@ async function getFile(path) {
 
 async function putFile(path, content, sha, message) {
   const res = await fetch(
-    `${API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`,
+    `${API}/repos/${REPO_OWNER}/${DATA_REPO}/contents/${path}`,
     {
       method: "PUT",
       headers: headers(),
@@ -46,40 +46,40 @@ async function putFile(path, content, sha, message) {
 }
 
 export async function loadEntries() {
-  return getFile("data/entries.json");
+  return getFile("entries.json");
 }
 
 export async function saveEntries(entries, sha) {
-  return putFile("data/entries.json", entries, sha, "Update entries");
+  return putFile("entries.json", entries, sha, "Update entries");
 }
 
 export async function loadIngredients() {
-  return getFile("data/ingredients.json");
+  return getFile("ingredients.json");
 }
 
 export async function saveIngredients(ingredients, sha) {
-  return putFile("data/ingredients.json", ingredients, sha, "Update ingredients");
+  return putFile("ingredients.json", ingredients, sha, "Update ingredients");
 }
 
 export async function loadSymptoms() {
-  return getFile("data/symptoms.json");
+  return getFile("symptoms.json");
 }
 
 export async function saveSymptoms(symptoms, sha) {
-  return putFile("data/symptoms.json", symptoms, sha, "Update symptoms");
+  return putFile("symptoms.json", symptoms, sha, "Update symptoms");
 }
 
 export async function loadPeople() {
-  return getFile("data/people.json");
+  return getFile("people.json");
 }
 
 export async function savePeople(people, sha) {
-  return putFile("data/people.json", people, sha, "Update people");
+  return putFile("people.json", people, sha, "Update people");
 }
 
 export async function testToken() {
   const res = await fetch(
-    `${API}/repos/${REPO_OWNER}/${REPO_NAME}`,
+    `${API}/repos/${REPO_OWNER}/${DATA_REPO}`,
     { headers: headers() }
   );
   return res.ok;
