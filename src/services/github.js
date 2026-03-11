@@ -2,6 +2,21 @@ const REPO_OWNER = "j-fan";
 const DATA_REPO = "food-diary-data";
 const API = "https://api.github.com";
 
+const DEMO_DATA = {
+  "entries.json": [
+    { id: "d1", datetime: "2026-03-11T08:00", person: "Alice", mealType: "breakfast", ingredients: ["eggs", "toast", "avocado"], symptoms: ["bloating"], notes: "" },
+    { id: "d2", datetime: "2026-03-10T12:30", person: "Bob", mealType: "lunch", ingredients: ["chicken", "rice", "broccoli"], symptoms: [], notes: "Felt good" },
+    { id: "d3", datetime: "2026-03-10T19:00", person: "Alice", mealType: "dinner", ingredients: ["salmon", "pasta", "garlic"], symptoms: ["headache"], notes: "" },
+  ],
+  "ingredients.json": ["avocado", "broccoli", "chicken", "eggs", "garlic", "pasta", "rice", "salmon", "toast"],
+  "symptoms.json": ["bloating", "cramps", "fatigue", "headache", "nausea"],
+  "people.json": ["Alice", "Bob", "Charlie"],
+};
+
+function isDemo() {
+  return getToken() === "demo";
+}
+
 function getToken() {
   return localStorage.getItem("github_pat");
 }
@@ -15,6 +30,9 @@ function headers() {
 }
 
 async function getFile(path) {
+  if (isDemo()) {
+    return { content: structuredClone(DEMO_DATA[path]), sha: "demo-sha" };
+  }
   const res = await fetch(
     `${API}/repos/${REPO_OWNER}/${DATA_REPO}/contents/${path}`,
     { headers: headers() }
@@ -26,6 +44,10 @@ async function getFile(path) {
 }
 
 async function putFile(path, content, sha, message) {
+  if (isDemo()) {
+    DEMO_DATA[path] = content;
+    return { content: { sha: "demo-sha-" + Date.now() } };
+  }
   const res = await fetch(
     `${API}/repos/${REPO_OWNER}/${DATA_REPO}/contents/${path}`,
     {
@@ -78,6 +100,7 @@ export async function savePeople(people, sha) {
 }
 
 export async function testToken() {
+  if (isDemo()) return true;
   const res = await fetch(
     `${API}/repos/${REPO_OWNER}/${DATA_REPO}`,
     { headers: headers() }

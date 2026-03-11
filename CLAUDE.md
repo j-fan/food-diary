@@ -7,6 +7,7 @@
 - Data files (at repo root of data repo): `entries.json`, `ingredients.json`, `symptoms.json`, `people.json`
 - GitHub API service in `src/services/github.js` — all reads/writes go to `food-diary-data`
 - Auth: fine-grained GitHub PAT scoped to data repo, stored in browser localStorage
+- Demo mode: enter `demo` as the PAT to use in-memory mock data (resets on refresh)
 
 ## Commands
 - `pnpm install` / `pnpm dev` / `pnpm build`
