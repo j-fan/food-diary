@@ -33,7 +33,7 @@ export default function AutocompleteInput({ label, options, value, onChange, pla
         onFocus={() => setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
       />
-      {showSuggestions && value && (filtered.length > 0 || showAddNew) && (
+      {showSuggestions && (filtered.length > 0 || showAddNew) && (
         <div className="suggestions">
           {filtered.map((item) => (
             <div key={item} onMouseDown={() => select(item)}>
